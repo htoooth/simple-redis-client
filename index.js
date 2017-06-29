@@ -2,6 +2,7 @@
 const events = require('events');
 const net = require('net');
 const RedisProto = require('./RedisProto');
+const commands = require('redis-commands');
 
 class Redis extends events.EventEmitter {
   constructor(options = {}) {
@@ -18,6 +19,8 @@ class Redis extends events.EventEmitter {
     this._callbacks = [];
 
     this._proto = new RedisProto();
+
+    this._bindCommands();
 
     this.connection = net.createConnection(this.options.port, this.options.host, () => {
       this._isConnected = true;
@@ -45,7 +48,6 @@ class Redis extends events.EventEmitter {
 
   sendCommand(cmd, callback) {
     return new Promise((resolve, reject) => {
-
       const cb = (err, ret) => {
         callback && callback(err, ret);
         err ? reject(err) : resolve(ret);
@@ -83,6 +85,24 @@ class Redis extends events.EventEmitter {
 
   end() {
     this.connection.destroy();
+  }
+
+  _bindCommands() {
+    let self = this;
+
+    commands.list.forEach(cmd => {
+      this[cmd.toLowerCase()] = this[cmd.toUpperCase()] = function(...rest) {
+        let callback = null;
+
+        if (typeof rest[rest.length -1] === 'function') {
+          callback = rest.pop();
+        }
+
+        let args = rest.map(arg => Array.isArray(arg) ? arg.join(' ') : arg).join(' ');
+
+        return self.sendCommand(`${cmd} ${args}\r\n`, callback);
+      }
+    })
   }
 }
 
