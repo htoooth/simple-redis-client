@@ -44,6 +44,12 @@ class Redis extends events.EventEmitter {
     this.connection.on('data', () => {
       this._pushData(data);
     });
+
+    this._proto.on('response', this._handleResponse);
+
+    this._proto.on('error', this._handleError);
+
+    this._proto.on('fatal', this._handleFatal);
   }
 
   sendCommand(cmd, callback) {
@@ -59,7 +65,7 @@ class Redis extends events.EventEmitter {
 
       this._callbacks.push(cb);
 
-      this.connection.write(`cmd\r\n`);
+      this.connection.write(`${cmd}\r\n`);
     });
   }
 
@@ -76,6 +82,21 @@ class Redis extends events.EventEmitter {
         cb(null, result.data);
       }
     }
+  }
+
+  _handleResponse(replay) {
+    const cb = this._callbacks.shift();
+    cb(null, replay);
+  }
+
+  _handleError(err) {
+    const cb = this._callbacks.shift();
+    cb(new Error(err));
+  }
+
+  _handleFatal(err) {
+    const cb = this._callbacks.shift();
+    cb(new Error(err));
   }
 
   _rejectAllCallback() {

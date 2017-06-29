@@ -24,6 +24,6 @@
 更好的错误处理，自动重连机制
 
 ## 感谢
-[how-to-write-a-nodejs-redis-client](http://morning.work/page/2016-05/how-to-write-a-nodejs-redis-client.html)
-[Redis Cluster实践](http://shift-alt-ctrl.iteye.com/blog/2284890)
-[redis集群模式](https://www.zhihu.com/question/21419897)
+* [how-to-write-a-nodejs-redis-client](http://morning.work/page/2016-05/how-to-write-a-nodejs-redis-client.html)
+* [Redis Cluster实践](http://shift-alt-ctrl.iteye.com/blog/2284890)
+* [redis集群模式](https://www.zhihu.com/question/21419897)
